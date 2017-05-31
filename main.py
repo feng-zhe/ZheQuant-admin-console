@@ -1,9 +1,4 @@
-#!./venv/bin/python
 import argparse
-import json
-import random
-from datetime import datetime, timezone, timedelta
-from pymongo import MongoClient, errors
 # mine modules
 import handlers
 
@@ -18,19 +13,19 @@ def main():
     args = parser.parse_args()
     # behave according to the arguments
     if args.reset:
-        reset_db()
+        handlers.reset_db()
 
     if args.insert:
-        num = insert_from_file(args.insert)
+        num = handlers.insert_from_file(args.insert)
         print('successfully inserted {0} documents'.format(num))
 
     if args.gen_test:
-        gen_test_data()
+        handlers.gen_test_data()
 
     if args.create_user:
         name = args.create_user[0]
         passwd = args.create_user[1]
-        if create_user(name, passwd):
+        if handlers.create_user(name, passwd):
             print('successfully created user')
         else:
             print('failed to create user')
