@@ -13,6 +13,7 @@ def reset_db():
     db = client.fin
     rst1 = db.users.drop()
     rst2 = db.stocks.drop()
+    rst2 = db.job_results.drop()
     return True
 
 def get_db_client():
