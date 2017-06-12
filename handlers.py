@@ -3,6 +3,10 @@ from datetime import datetime, timezone, timedelta
 from pymongo import MongoClient, errors
 
 ############################################### handlers ########################################
+def restore():
+    # TODO: remove test data and restore data from backup 
+    pass
+
 def reset_db():
     '''
     Drop the collections created. Always returns True unless db connection fail.
@@ -49,6 +53,7 @@ def gen_test_data():
     ''' 
     create test collections, because the seed is same, the result is same every you run it
     '''
+    # TODO: backup current data
     # generate test stock data
     random.seed(0)
     test_data = []

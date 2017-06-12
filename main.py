@@ -6,9 +6,10 @@ def main():
     # define arguments
     parser = argparse.ArgumentParser(description='administration tools for ZheQuant')
     ex_group = parser.add_mutually_exclusive_group()
-    ex_group.add_argument('-r', '--reset', action='store_true', help='reset database')
+    ex_group.add_argument('-R', '--reset', action='store_true', help='reset database')
     ex_group.add_argument('-i', '--insert', metavar='JSON_FILE_PATH', help='insert data into database')
-    ex_group.add_argument('-g', '--gen_test', action='store_true', help='generate test data into database')
+    ex_group.add_argument('-g', '--gen_test', action='store_true', help='back up the current data and generate test data')
+    ex_group.add_argument('-r', '--restore', action='store_true', help='discard test data and restore the backup data')
     ex_group.add_argument('-c', '--create_user', metavar=('USERID', 'PASSWORD'), nargs=2, help='create user and password')
     args = parser.parse_args()
     # behave according to the arguments
@@ -21,6 +22,9 @@ def main():
 
     if args.gen_test:
         handlers.gen_test_data()
+        
+    if args.restore:
+        handlers.restore()
 
     if args.create_user:
         name = args.create_user[0]
