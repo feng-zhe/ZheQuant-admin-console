@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import argparse
 # mine modules
 import handlers
@@ -15,6 +16,9 @@ def main():
     # behave according to the arguments
     if args.reset:
         handlers.reset_db()
+
+    if args.restore:
+        handlers.restore()
 
     if args.insert:
         num = handlers.insert_from_file(args.insert)

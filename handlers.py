@@ -1,23 +1,37 @@
 import random
 from datetime import datetime, timezone, timedelta
-from pymongo import MongoClient, errors
+from pymongo import MongoClient, errors, ASCENDING, DESCENDING
 
 ############################################### handlers ########################################
-def restore():
-    # TODO: remove test data and restore data from backup 
-    pass
+BACKUP_TAG = 'mwsrjtns' # used to find the backup collection name
 
-def reset_db():
-    '''
-    Drop the collections created. Always returns True unless db connection fail.
-    '''
+def restore():
+    # get db
     client = get_db_client()
     if not client:
         return False
     db = client.fin
-    rst1 = db.users.drop()
-    rst2 = db.stocks.drop()
-    rst2 = db.job_results.drop()
+    # remove test data 
+    names = db.collection_names()
+    # restore data from backup 
+    if ('stocks' + BACKUP_TAG) in names:
+        db['stocks' + BACKUP_TAG].rename('stocks', dropTarget=True)
+        print('restored backup data into stocks');
+    if ('users' + BACKUP_TAG) in names:
+        db['users' + BACKUP_TAG].rename('users', dropTarget=True)
+        print('restored backup data into users');
+    if ('job_results' + BACKUP_TAG) in names:
+        db['job_results' + BACKUP_TAG].rename('job_results', dropTarget=True)
+        print('restored backup data into jobs');
+
+def reset_db():
+    '''
+    Reset the whole database. Always returns True unless db connection fail.
+    '''
+    client = get_db_client()
+    if not client:
+        return False
+    client.drop_database('fin')
     return True
 
 def get_db_client():
@@ -53,7 +67,25 @@ def gen_test_data():
     ''' 
     create test collections, because the seed is same, the result is same every you run it
     '''
-    # TODO: backup current data
+    # get db
+    client = get_db_client()
+    if not client:
+        return False
+    db = client.fin
+    # backup current data
+    names = db.collection_names()
+    if ('stocks'+BACKUP_TAG) in names: # already using test data?
+        print('Already using test data. Aborting')
+        return
+    if ('stocks') in names:
+        db.stocks.rename('stocks' + BACKUP_TAG)
+        print('Backup stocks data')
+    if ('users') in names:
+        db.users.rename('users' + BACKUP_TAG)
+        print('Backup users data')
+    if ('job_results') in names:
+        db.job_results.rename('job_results' + BACKUP_TAG)
+        print('Backup jobs data')
     # generate test stock data
     random.seed(0)
     test_data = []
@@ -65,12 +97,17 @@ def gen_test_data():
             utc_date += timedelta(days=1)
     # generate test user data
     test_user = { 'id': 'test', 'passwd': '098f6bcd4621d373cade4e832627b4f6' } # the md5 of 'test'
-    # create indexes in database
-    client = get_db_client()
-    if not client:
-        return False
+    # create indexes
+    db.stocks.create_index([('code', ASCENDING), 
+                            ('date', ASCENDING)], 
+                            unique=True)
+    db.users.create_index([('id', ASCENDING)], 
+                            unique=True)
+    db.job_results.create_index([('name', ASCENDING), 
+                                 ('creator', ASCENDING), 
+                                 ('create_date',DESCENDING)], 
+                            unique=True)
     # insert into database
-    db = client.fin
     rst1 = db.stocks.insert_many(test_data)
     if rst1:
         print('[ok] inserted {0} stock docs'.format(len(rst1.inserted_ids)))
