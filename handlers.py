@@ -92,7 +92,7 @@ def gen_test_data():
     utc_date = datetime(2016, 1, 1, tzinfo=timezone.utc)
     for code_id in range(0,10): # 10 test stock code
         for day in range(0,366): # use 2016 as test year
-            doc = {'code':'test_code_{0}'.format(code_id), 'date': utc_date.timestamp(), 'close_price': random.uniform(80,120)}
+            doc = {'code':'test_code_{0}'.format(code_id), 'date': utc_date, 'close_price': random.uniform(80,120)}
             test_data.append(doc)
             utc_date += timedelta(days=1)
     # generate test user data
